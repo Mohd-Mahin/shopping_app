@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import '../provider/products.dart';
 
 class ProductDetailScreen extends StatelessWidget {
-  // final String title;
-  // const ProductDetailScreen({Key? key, required this.title}) : super(key: key);
   static const routeName = 'product-detail';
+
+  const ProductDetailScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
