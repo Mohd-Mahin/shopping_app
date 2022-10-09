@@ -14,19 +14,47 @@ class EditProductScreen extends StatefulWidget {
 class _EditProductScreenState extends State<EditProductScreen> {
   final _priceFocusNode = FocusNode();
   final _descriptionFocusNode = FocusNode();
-  final _imageUrlController = TextEditingController();
   final _imageUrlFocusNode = FocusNode();
+  final _imageUrlController = TextEditingController();
   final _form = GlobalKey<FormState>();
 
   late String title;
   late double price;
   late String description;
   late String imageUrl;
+  var productId;
+
+  var _isInt = true;
+
+  final _initialValues = {
+    'title': '',
+    'price': '',
+    'description': '',
+    'imageUrl': ''
+  };
 
   @override
   void initState() {
     _imageUrlFocusNode.addListener(_updateImageUrl);
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    if (_isInt) {
+      final id = ModalRoute.of(context)!.settings.arguments;
+      if (id != null) {
+        final editedProduct =
+            Provider.of<Products>(context).findByIndex(id as String);
+        _initialValues['title'] = editedProduct.title;
+        _initialValues['price'] = editedProduct.price.toString();
+        _initialValues['description'] = editedProduct.description;
+        _imageUrlController.text = editedProduct.imageUrl;
+        productId = editedProduct.id;
+      }
+      _isInt = false;
+    }
+    super.didChangeDependencies();
   }
 
   void _updateImageUrl() {
@@ -55,12 +83,23 @@ class _EditProductScreenState extends State<EditProductScreen> {
       return;
     }
     _form.currentState?.save();
-    Provider.of<Products>(context, listen: false).addProduct(
-      title,
-      description,
-      price,
-      imageUrl,
-    );
+
+    if (productId != null) {
+      Provider.of<Products>(context, listen: false).updateProduct(
+        productId,
+        title,
+        description,
+        price,
+        imageUrl,
+      );
+    } else {
+      Provider.of<Products>(context, listen: false).addProduct(
+        title,
+        description,
+        price,
+        imageUrl,
+      );
+    }
     Navigator.of(context).pop();
   }
 
@@ -83,6 +122,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
           child: ListView(
             children: [
               TextFormField(
+                initialValue: _initialValues['title'],
                 decoration: const InputDecoration(labelText: 'Title'),
                 textInputAction: TextInputAction.next,
                 onFieldSubmitted: (_) =>
@@ -98,6 +138,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 },
               ),
               TextFormField(
+                initialValue: _initialValues['price'],
                 decoration: const InputDecoration(labelText: 'Price'),
                 keyboardType: TextInputType.number,
                 textInputAction: TextInputAction.next,
@@ -118,6 +159,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 },
               ),
               TextFormField(
+                initialValue: _initialValues['description'],
                 decoration: const InputDecoration(label: Text('Description')),
                 keyboardType: TextInputType.multiline,
                 maxLines: 3,
@@ -163,7 +205,9 @@ class _EditProductScreenState extends State<EditProductScreen> {
                       },
                       focusNode: _imageUrlFocusNode,
                       onSaved: (value) => {if (value != null) imageUrl = value},
-                      validator: (value) {},
+                      validator: (value) {
+                        if (value!.isEmpty) return 'Please enter a image';
+                      },
                     ),
                   )
                 ],

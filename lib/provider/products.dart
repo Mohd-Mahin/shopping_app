@@ -74,6 +74,32 @@ class Products with ChangeNotifier {
     notifyListeners();
   }
 
+  void updateProduct(
+    String id,
+    String title,
+    String description,
+    double price,
+    String imageUrl,
+  ) {
+    final prodIndex = _products.indexWhere((element) => element.id == id);
+    if (prodIndex > 0) {
+      _products[prodIndex] = Product(
+        id: id,
+        title: title,
+        description: description,
+        price: price,
+        imageUrl: imageUrl,
+        isFavourite: _products[prodIndex].isFavourite,
+      );
+      notifyListeners();
+    }
+  }
+
+  void deleteProduct(String id) {
+    _products.removeWhere((element) => element.id == id);
+    notifyListeners();
+  }
+
   Product findByIndex(String index) {
     return _products.firstWhere((element) => element.id == index);
   }
