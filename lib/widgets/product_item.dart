@@ -18,8 +18,13 @@ class ProductItem extends StatelessWidget {
         footer: GridTileBar(
           leading: Consumer<Product>(
             builder: ((ctx, value, child) => IconButton(
-                  onPressed: () {
-                    product.toggleFavourite();
+                  onPressed: () async {
+                    try {
+                      await product.toggleFavourite();
+                    } catch (error) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Unable to update')));
+                    }
                   },
                   color: Theme.of(context).colorScheme.secondary,
                   icon: Icon(

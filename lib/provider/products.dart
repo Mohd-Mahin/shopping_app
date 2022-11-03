@@ -65,16 +65,19 @@ class Products with ChangeNotifier {
         'https://shopping-app-flutter-c5b12-default-rtdb.firebaseio.com/products.json');
     try {
       final response = await http.get(url);
-      final parsedResponse = json.decode(response.body) as Map<String, dynamic>;
+      final parsedResponse = json.decode(response.body) as dynamic;
+      if (parsedResponse == null) return;
       final List<Product> products = [];
       parsedResponse.forEach((key, value) {
         products.add(
           Product(
-              id: key,
-              title: value['title'],
-              description: value['description'],
-              price: value['price'],
-              imageUrl: value['imageUrl']),
+            id: key,
+            title: value['title'],
+            description: value['description'],
+            price: value['price'],
+            imageUrl: value['imageUrl'],
+            isFavourite: value['isFavourite'],
+          ),
         );
       });
       _products = products;
@@ -98,14 +101,16 @@ class Products with ChangeNotifier {
             'title': title,
             'description': description,
             'price': price,
-            'imageUrl': imageUrl
+            'imageUrl': imageUrl,
+            'isFavourite': false
           }));
       final newProduct = Product(
-          id: json.decode(response.body)['name'],
-          title: title,
-          description: description,
-          price: price,
-          imageUrl: imageUrl);
+        id: json.decode(response.body)['name'],
+        title: title,
+        description: description,
+        price: price,
+        imageUrl: imageUrl,
+      );
       _products.add(newProduct);
       notifyListeners();
     } catch (err) {
@@ -132,7 +137,7 @@ class Products with ChangeNotifier {
           'description': description,
           'price': price,
           'imageUrl': imageUrl,
-          // 'isFavourite': _products[prodIndex].isFavourite
+          'isFavourite': _products[prodIndex].isFavourite
         }),
       );
       _products[prodIndex] = Product(
