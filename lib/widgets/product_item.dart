@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:shopping_app/provider/cart.dart';
 import 'package:shopping_app/provider/product.dart';
 import 'package:shopping_app/screens/product_detail_screen.dart';
+import '../provider/auth.dart';
 
 class ProductItem extends StatelessWidget {
   const ProductItem({Key? key}) : super(key: key);
@@ -11,6 +12,7 @@ class ProductItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final product = Provider.of<Product>(context, listen: false);
     final cart = Provider.of<Cart>(context, listen: false);
+    final auth = Provider.of<AuthProivder>(context, listen: false);
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
@@ -20,7 +22,7 @@ class ProductItem extends StatelessWidget {
             builder: ((ctx, value, child) => IconButton(
                   onPressed: () async {
                     try {
-                      await product.toggleFavourite();
+                      await product.toggleFavourite(auth.token!);
                     } catch (error) {
                       ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Unable to update')));

@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'product.dart';
 
 class Products with ChangeNotifier {
+  String? authToken;
   List<Product> _products = [
     // Product(
     //   id: 'p1',
@@ -41,6 +42,7 @@ class Products with ChangeNotifier {
   ];
 
   var _showFavouriteOnly = false;
+  Products(this.authToken, this._products);
 
   List<Product> get items {
     return [..._products];
@@ -62,7 +64,7 @@ class Products with ChangeNotifier {
 
   Future<void> fetchProducts() async {
     final url = Uri.parse(
-        'https://shopping-app-flutter-c5b12-default-rtdb.firebaseio.com/products.json');
+        'https://shopping-app-flutter-c5b12-default-rtdb.firebaseio.com/products.json?auth=$authToken');
     try {
       final response = await http.get(url);
       final parsedResponse = json.decode(response.body) as dynamic;
@@ -94,7 +96,7 @@ class Products with ChangeNotifier {
     String imageUrl,
   ) async {
     final url = Uri.parse(
-        'https://shopping-app-flutter-c5b12-default-rtdb.firebaseio.com/products.json');
+        'https://shopping-app-flutter-c5b12-default-rtdb.firebaseio.com/products.json?auth=$authToken');
     try {
       final response = await http.post(url,
           body: json.encode({
@@ -127,7 +129,7 @@ class Products with ChangeNotifier {
     String imageUrl,
   ) async {
     final url = Uri.parse(
-        'https://shopping-app-flutter-c5b12-default-rtdb.firebaseio.com/products/$id.json');
+        'https://shopping-app-flutter-c5b12-default-rtdb.firebaseio.com/products/$id.json?auth=$authToken');
     final prodIndex = _products.indexWhere((element) => element.id == id);
     if (prodIndex >= 0) {
       await http.patch(
@@ -154,7 +156,7 @@ class Products with ChangeNotifier {
 
   Future<void> deleteProduct(String id) async {
     final url = Uri.parse(
-        'https://shopping-app-flutter-c5b12-default-rtdb.firebaseio.com/products/$id.json');
+        'https://shopping-app-flutter-c5b12-default-rtdb.firebaseio.com/products/$id.json?auth=$authToken');
     var existingProductIndex =
         _products.indexWhere((element) => element.id == id);
     dynamic existingProduct = _products[existingProductIndex];
