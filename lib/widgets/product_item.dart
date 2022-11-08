@@ -22,7 +22,7 @@ class ProductItem extends StatelessWidget {
             builder: ((ctx, value, child) => IconButton(
                   onPressed: () async {
                     try {
-                      await product.toggleFavourite(auth.token!);
+                      await product.toggleFavourite(auth.token!, auth.userId!);
                     } catch (error) {
                       ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Unable to update')));
