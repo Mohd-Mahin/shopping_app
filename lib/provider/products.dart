@@ -76,9 +76,11 @@ class Products with ChangeNotifier {
     }
   }
 
-  Future<void> fetchProducts() async {
+  Future<void> fetchProducts([bool filterByUser = false]) async {
+    final filterString =
+        filterByUser ? 'orderBy="creatorId"&equalTo="$userId"' : '';
     final url = Uri.parse(
-        'https://shopping-app-flutter-c5b12-default-rtdb.firebaseio.com/products.json?auth=$authToken');
+        'https://shopping-app-flutter-c5b12-default-rtdb.firebaseio.com/products.json?auth=$authToken&$filterString');
     try {
       final response = await http.get(url);
       final parsedResponse = json.decode(response.body) as dynamic;
@@ -122,6 +124,7 @@ class Products with ChangeNotifier {
           'description': description,
           'price': price,
           'imageUrl': imageUrl,
+          'creatorId': userId
         }),
       );
       final newProduct = Product(

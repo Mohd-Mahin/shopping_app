@@ -5,13 +5,31 @@ import 'package:shopping_app/widgets/app_drawer.dart';
 import 'package:shopping_app/widgets/user_product_item.dart';
 import '../provider/products.dart';
 
-class UserProductsScreen extends StatelessWidget {
+class UserProductsScreen extends StatefulWidget {
   static const routeName = '/user-products';
 
   const UserProductsScreen({Key? key}) : super(key: key);
 
+  @override
+  State<UserProductsScreen> createState() => _UserProductsScreenState();
+}
+
+class _UserProductsScreenState extends State<UserProductsScreen> {
+  var _isLoading = false;
+
   Future refreshData(BuildContext context) async {
-    await Provider.of<Products>(context, listen: false).fetchProducts();
+    await Provider.of<Products>(context, listen: false).fetchProducts(true);
+  }
+
+  @override
+  void initState() {
+    _isLoading = true;
+    Provider.of<Products>(context, listen: false).fetchProducts(true).then((_) {
+      setState(() {
+        _isLoading = false;
+      });
+    });
+    super.initState();
   }
 
   @override
@@ -29,19 +47,26 @@ class UserProductsScreen extends StatelessWidget {
         ],
       ),
       drawer: const AppDrawer(),
-      body: RefreshIndicator(
-        onRefresh: () => refreshData(context),
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: ListView.builder(
-            itemCount: productData.items.length,
-            itemBuilder: (ctx, index) => UserProductItem(
-                id: productData.items[index].id,
-                title: productData.items[index].title,
-                imageUrl: productData.items[index].imageUrl),
-          ),
-        ),
-      ),
+      body: _isLoading
+          ? Flex(
+              direction: Axis.vertical,
+              children: const [
+                Expanded(child: Center(child: CircularProgressIndicator()))
+              ],
+            )
+          : RefreshIndicator(
+              onRefresh: () => refreshData(context),
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: ListView.builder(
+                  itemCount: productData.items.length,
+                  itemBuilder: (ctx, index) => UserProductItem(
+                      id: productData.items[index].id,
+                      title: productData.items[index].title,
+                      imageUrl: productData.items[index].imageUrl),
+                ),
+              ),
+            ),
     );
   }
 }
