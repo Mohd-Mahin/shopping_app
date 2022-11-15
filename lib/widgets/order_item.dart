@@ -14,12 +14,34 @@ class OrderItem extends StatefulWidget {
   State<OrderItem> createState() => _OrderItemState();
 }
 
-class _OrderItemState extends State<OrderItem> {
+class _OrderItemState extends State<OrderItem>
+    with SingleTickerProviderStateMixin {
   var _isExpanded = false;
+
+  late AnimationController _animationController;
+  late Animation<double> opacityAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+
+    opacityAnimation = Tween(begin: 0.0, end: 1.0).animate(
+        CurvedAnimation(parent: _animationController, curve: Curves.linear));
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    double height = widget.orderItem.products.length > 1 ? 100 : 40;
+    double height = widget.orderItem.products.length > 1 ? 100 : 70;
 
     return Card(
       margin: const EdgeInsets.all(10),
@@ -38,12 +60,19 @@ class _OrderItemState extends State<OrderItem> {
                 setState(() {
                   _isExpanded = !_isExpanded;
                 });
+                if (_isExpanded)
+                  _animationController.forward();
+                else
+                  _animationController.reverse();
               },
             ),
           ),
-          if (_isExpanded)
-            Container(
-              height: height,
+          FadeTransition(
+            opacity: opacityAnimation,
+            child: AnimatedContainer(
+              curve: Curves.linear,
+              duration: const Duration(milliseconds: 100),
+              height: _isExpanded ? height : 20,
               child: ListView(
                 children: widget.orderItem.products
                     .map(
@@ -72,7 +101,8 @@ class _OrderItemState extends State<OrderItem> {
                     )
                     .toList(),
               ),
-            )
+            ),
+          )
         ],
       ),
     );
